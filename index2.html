@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mobile Summons</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">  
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/keen-dashboards.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="build/nv.d3.css" rel="stylesheet" type="text/css">
+</head>
+<style>
+.navbar.navbar-inverse .navbar-header .navbar-brand {
+        display: block;
+        text-align:center;
+        float: none;
+        vertical-align: top;
+}
+.dobmain{
+	top: 50px;
+	background-color: #F2F2F2;
+}
+.navbar.navbar-inverse .navbar-header{
+  float: none; 
+}
+#nav_bar {
+	background-color: #AEC8EB;
+	border-color: #AEC8EB;
+	width: 100%;
+	height: 40px;
+	margin-bottom: 10px;
+}
+#indicator {
+	float: right;
+}
+.logo{
+	background-image: url('https://nycdob.github.io/EssentialActiveConstruction/images/dob_logo_white.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	float: right;
+	background-size: 70px;
+	height: 50px;
+	width: 70px;	 
+}
+#chart-01{
+    box-sizing: border-box;
+    width: 100%;
+	background-color: #3D4B58;
+}
+.datepicker{
+	padding-left: 10px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+svg {
+	display: block;
+}
+#chart-wrapper-timeline{
+	margin-top: 110px;
+}
+#chartTimeline, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#chartSummonsBoro, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#chartSummonsType, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#chartTopInfractions, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#chartViosByType, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#chartSummonsVoid, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#chartUnderReview, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#chartNotServed, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
+#topBtn {
+  display: inline-block;
+  background-color: #317BBC;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  border-radius: 10px;
+  right: 30px;
+  float: right;
+  transition: background-color .3s;
+  z-index: 99;
+}
+#topBtn:hover {
+  cursor: pointer;
+  background-color: #333;
+}
+#topBtn:active {
+  background-color: #555;
+}
+#topBtn::after {
+  content: "\f077";
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 2em;
+  line-height: 50px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+@media ( max-width:1200px){
+		<!-- .dobmain	{ -->
+			<!-- padding-top:70px -->
+		<!-- } -->
+	#chart-wrapper-timeline{
+		margin-top: 310px;
+	}
+}
+</style>
+
+<body class="application">
+<div class="container">
+			<div class="navbar navbar-fixed-top" role="navigation" style="color:white;background-color:RGB(40,56,124);">
+			<a class="logo" href="https://www1.nyc.gov/site/buildings/index.page" target="_blank"> </a>
+				<div class="nav navbar-nav" style="margin-left:15px;font-size:28px;font-weight:bold;text-align:center;">
+					DOB NOW: Inspections Mobile Summons 					
+				</div>
+			</div>
+</div>
+
+  <!-- <div class="container-fluid dobmain"> -->
+<div class="navbar navbar-default navbar-fixed-top dobmain">
+    <div class="row" style="background-color:rgba(192,192,192,0.4); margin-bottom:10px;">  
+		<form style="margin:10px">
+			<div class="form-row">
+			<label style="font-size:18px; margin-left:15px; padding-top:5px;" >FILTER</label><br/>
+				<div class="form-group col-md-4">
+				  <label style="font-size:14px;" for="from">Date Between:</label><br/>
+				  <input type="text" id="from" name="from" >&nbsp &nbsp
+				  <label style="font-size:14px;" for="to">and</label>&nbsp &nbsp
+				  <input type="text" id="to" name="to">	
+				</div>	
+				<div class="form-group col-md-2" id="unitDropdown">
+				  <label style="font-size:14px;" for="unit">Unit Name:</label><br/>
+					<select id="unit" style="height: 25px; overflow-x: hidden;">  
+						<option value="0" selected="selected">All Values</option> 
+					</select>
+				</div>
+				<div class="form-group col-md-2">
+				  <label style="font-size:14px;" for="inspName">Inspector Name:</label><br/>
+					<select id="inspName" style="height: 25px; overflow-x: hidden;">  
+						<option value="0" selected="selected">All Values</option>
+					</select>
+				</div>
+				<div class="form-group col-md-2" style="padding-top:20px;"> 
+					<button type="button" class="btn btn-primary" id="filterBtn">GO</button>
+					<button type="button" class="btn btn-primary" id="clearFilterBtn">Clear Filter</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+    <div class="row">	
+	
+      <div class="col-sm-12">
+        <div id="chart-wrapper-timeline" class="chart-wrapper">
+          <div class="chart-title">
+            OATH Summons & DOB Violations Issued
+          </div>
+          <div class="chart-stage" id="chartTimeline">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+	
+    <div class="row">
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Summons by Borough
+          </div>
+          <div class="chart-stage" id="chartSummonsBoro">
+			<svg></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            OATH Type of Service (Excluding POP Summons)
+          </div>
+          <div class="chart-stage" id="chartSummonsType">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+	
+    <div class="row">
+
+      <div class="col-sm-12">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Top Infraction Codes
+          </div>
+          <div class="chart-stage" id="chartTopInfractions">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+	
+    <div class="row">
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Summons Type
+          </div>
+          <div class="chart-stage" id="chartViosByType">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Volume of Void w/o Replacement or Issued in Error
+          </div>
+          <div class="chart-stage" id="chartSummonsVoid">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+	
+    <div class="row">
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Mobile Summons Under Review
+          </div>
+          <div class="chart-stage" id="chartUnderReview">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Mobile Summons Not Served
+          </div>
+          <div class="chart-stage" id="chartNotServed">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="row">
+		<button id="topBtn" title="Go to top"></button> 
+  </div>
+    <hr>
+
+    <p class="small text-muted">Built by DOB Analytics</a></p>
+	
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.9/d3.min.js"></script> 
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+  <script src="build/nv.d3.js"></script>  
+  <script type="text/javascript" src="assets/lib/keen-js/dist/keen.min.js"></script>
+  <script type="text/javascript" src="assets/js/meta.js"></script>
+<script>
+
+
+$(document).ready(function(){
+	var formatTime = d3.time.format("%b-%y"),
+				vUnit=new Set(),
+				vBadge=new Set(), 
+				format = d3.time.format("%-m/%-d/%Y").parse,
+				fromDateInit,
+				toDateInit,
+				fromDate,
+				toDate,
+				fromFormatDate,
+				toFormatDate,
+				unitVal,
+				inspNameVal;
+				
+	var topbutton = document.getElementById("topBtn");
+	topbutton.onclick = function(){	
+	  document.body.scrollTop = 0;
+	  document.documentElement.scrollTop = 0;
+	}
+				
+	function fBuild(n,q){
+		d=document.querySelector("#"+n);
+		q.forEach(
+		function(da){
+		d1=document.createElement("option");
+		d1.value=da;
+		d1.text=da;
+		d.appendChild(d1);})
+	}
+	d3.csv("data/MobileSummons_AllDates.csv", function(data){		
+		data.forEach(function(d){
+			d.creationDate = format(d["Creation Date"]);
+			(d["Unit Code"])?vUnit.add(d["Unit Code"]):0;
+			(d["Inspector Name"])?vBadge.add(d["Inspector Name"]):0;
+		});
+		fBuild("unit",Array.from(vUnit).sort());
+		fBuild("inspName",Array.from(vBadge).sort());
+		fFilterVals = function (){
+						gFilterVals=data.filter(function(d){			
+						 return ((document.querySelector("#unit").value)=="0"? true:d["Unit Code"] == document.querySelector("#unit").value) && 
+								((document.querySelector("#inspName").value=="0")?true:d["Inspector Name"]==document.querySelector("#inspName").value) && 
+								((fromFormatDate)?d.creationDate >= fromFormatDate:true ) &&  
+								((toFormatDate)?d.creationDate <= toFormatDate:true )})
+						};
+		fFilterVals();
+		[timelineChart,summonsBoroughChart,summonsTypeChart,topInfractionsChart,viosByTypeChart,summonsVoidChart,underReviewChart,notServedChart].forEach(function(e){e()});
+
+		//TIME FRAME
+		$('.datepicker').change(function() {
+				fromDate = $('#from').val();
+				toDate = $('#to').val();			
+		});
+		
+		//DATE PICKER
+		$( function() {
+				var dateFormat = "m-d-yy",
+				  from = $( "#from" ).datepicker({
+					  defaultDate: "+1w",
+					  changeMonth: true,
+					  numberOfMonths: 1
+					})
+					.on( "change", function() {
+					  to.datepicker( "option", "minDate", getDate( this ) );
+					}),
+				  to = $( "#to" ).datepicker({
+					defaultDate: "+1w",
+					changeMonth: true,
+					numberOfMonths: 1
+				  })
+				  .on( "change", function() {
+					from.datepicker( "option", "maxDate", getDate( this ) );
+				  });
+
+				function getDate( element ) {
+				  var date;
+				  try {
+					date = $.datepicker.parseDate( dateFormat, element.value );
+				  } catch( error ) {
+					date = null;
+				  }
+				  return date;
+				}
+		});
+		
+		$("#from").datepicker()
+			.focus(function() {
+			$(this).prop("autocomplete", "off");
+		});
+		
+		
+		$("#to").datepicker()
+			.focus(function() {
+			$(this).prop("autocomplete", "off");
+		});
+		
+		
+		
+		$('#from').change(function() {
+			fromDate = $('#from').datepicker({ dateFormat: 'm-d-yy' }).val();
+			//$('#fromDate_txt').text(fromDate);
+			//$('.fromDate_txt').text(fromDate);  
+			fromFormatDate = format(fromDate);	
+		});
+		
+		
+		$('#to').change(function() {
+			toDate = $('#to').datepicker({ dateFormat: 'm-d-yy' }).val();
+			//$('#toDate_txt').text(toDate);
+			//$('.toDate_txt').text(toDate); 
+			toFormatDate = format(toDate);
+		});
+		
+		
+		$('#unit').change(function() {
+			unitVal = $('#unit').val();
+		});
+		
+		
+		$('#inspName').change(function() {
+			inspNameVal = $('#inspName').val();
+		});
+		
+		
+		var filterDataClick = document.getElementById('filterBtn');
+		filterDataClick.onclick = function(){
+			fFilterVals();			
+			timelineChart();
+			summonsBoroughChart();
+			summonsTypeChart();
+			topInfractionsChart();
+			viosByTypeChart();
+			summonsVoidChart();	
+			underReviewChart();
+			notServedChart();
+		}
+		
+		var clearFilterClick = document.getElementById('clearFilterBtn');
+		clearFilterClick.onclick = function(){
+			fromFormatDate="";toFormatDate="";	
+			$("#from").val("");
+			$("#to").val("");
+			$("#unit").val("0");
+			$("#inspName").val("0");
+			
+			fFilterVals();			
+			timelineChart();
+			summonsBoroughChart();
+			summonsTypeChart();
+			topInfractionsChart();
+			viosByTypeChart();
+			summonsVoidChart();	
+			underReviewChart();
+			notServedChart();
+		}
+		
+		//CHARTS
+		//Time line chart
+		function timelineChart(){					
+			var nestTimeLine = d3.nest()
+				.key(function(d){return d.OATH_DOB;})
+				.key(function(d){return formatTime(new Date(d["Creation Date"])) })			
+				.rollup(function(v){
+				return v.length   		
+				})
+				.entries(gFilterVals)
+				console.log(nestTimeLine);
+				//FORMAT NEST TO JSON (REQUIRED BY NVD3)
+				var a1=[],t=0;
+				for (vObj of nestTimeLine ) {
+						obj={key: vObj.key }
+						a1.push(obj);
+						a2=[];
+						for (x=0;x<vObj.values.length;x++) {
+						   obj1={};
+						   obj1.label=vObj.values[x].key;
+						   obj1["value"]=vObj.values[x].values 
+						   a2.push(obj1);
+						}
+						a1[t].values=a2;
+						t++;
+				};
+				//console.log(a1);
+
+				nv.addGraph(function() {
+					var chart = nv.models.multiBarChart()
+					.x(function(d) { return d.label } )
+					.y(function(d) { return d.value } )	
+					.duration(0)
+					<!-- .margin({left: 100}) -->
+					<!-- .margin({right: 30}) -->
+					.showControls(false)
+					.stacked(false);
+					
+					chart.yAxis.tickFormat(d3.format(',.0f'));
+				   
+					d3.select('#chartTimeline svg')
+						.datum(a1)
+						.call(chart);
+					nv.utils.windowResize(chart.update);
+					
+					chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
+					chart.state.dispatch.on('change', function(state){
+						nv.log('state', JSON.stringify(state));
+					});	
+						
+					return chart;
+						
+				})
+		}
+
+
+
+		
+		//OATH Summons by Borough chart
+		function summonsBoroughChart(){
+			
+		var nest = d3.nest()
+			.key(function(d){return d.OATH_DOB;})
+			 .key(function(d){return d.Borough;})//.sortKeys(d3.ascending)
+			.rollup(function(v){
+			return v.length   		
+			})
+			.entries(gFilterVals)
+
+			//FORMAT NEST TO JSON (REQUIRED BY NVD3)
+			var a1=[],t=0;
+			for (vObj of nest ) {
+					obj={key: vObj.key }
+					a1.push(obj);
+					a2=[];
+					for (x=0;x<vObj.values.length;x++) {
+					   obj1={};
+					   obj1.label=vObj.values[x].key;
+					   obj1["value"]=vObj.values[x].values 
+					   a2.push(obj1);
+					}
+					a1[t].values=a2;
+					t++;
+			};
+			//console.log(a1);	
+			nv.addGraph(function() {
+				var chart = nv.models.multiBarHorizontalChart()
+				.x(function(d) { return d.label })
+				.y(function(d) { return d.value })		
+				.duration(250)
+				.margin({left: 100})
+				.margin({right: 30})
+				.xDomain(['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'])
+				.color(['#c12122', '#f26969'])
+				.showControls(false)
+				.stacked(false);
+				chart.yAxis.tickFormat(d3.format(',.0f'));
+			    
+				d3.select('#chartSummonsBoro svg')
+					.datum(a1)
+					.call(chart);
+				nv.utils.windowResize(chart.update);
+				
+				chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
+				chart.state.dispatch.on('change', function(state){
+					nv.log('state', JSON.stringify(state));
+				});	
+					
+				return chart;
+					
+			})
+		
+		}
+
+		//OATH Summons by Type chart
+		function summonsTypeChart(){
+			var filterVals=gFilterVals.filter(function(d){
+			  return (( d["OATH_DOB"] == "OATH") && (d["Inspector indicated POP"]!=="Yes") && (d["ServiceType"]!=="")) 
+			});			
+			var nest = d3.nest()
+				.key(function(d){return d.ServiceType;})
+				 .key(function(d){return d.Borough;})
+				.rollup(function(v){
+				return v.length   		
+				})
+				.entries(filterVals)
+				console.log(nest);
+
+				//FORMAT NEST TO JSON (REQUIRED BY NVD3)
+				var a1=[],t=0;
+				for (vObj of nest ) {
+						obj={key: vObj.key }
+						a1.push(obj);
+						a2=[];
+						for (x=0;x<vObj.values.length;x++) {
+						   obj1={};
+						   obj1.label=vObj.values[x].key;
+						   obj1["value"]=vObj.values[x].values 
+						   a2.push(obj1);
+						}
+						a1[t].values=a2;
+						t++;
+				};
+				//console.log(a1);	
+				nv.addGraph(function() {
+					var chart = nv.models.multiBarHorizontalChart()
+					.x(function(d) { return d.label })
+					.y(function(d) { return d.value })		
+					.duration(250)
+					.margin({left: 100})
+					.margin({right: 30})
+					.showControls(false)
+					.xDomain(['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'])
+					.color(['#c12122', '#f26969'])
+					//#157000
+					
+					.stacked(false);
+					chart.yAxis.tickFormat(d3.format(',.0f'));
+							
+				   
+					d3.select('#chartSummonsType svg')
+						.datum(a1)
+						.call(chart);
+					nv.utils.windowResize(chart.update);
+					
+					chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
+					chart.state.dispatch.on('change', function(state){
+						nv.log('state', JSON.stringify(state));
+					});	
+						
+					return chart;
+						
+				})		
+		}
+
+		//Top Infraction Codes chart
+		function topInfractionsChart(){
+			var filterVals=gFilterVals.filter(function(d){
+			  return ( d["STANDARD_DESCRIPTION"] !=="" ) 
+			});			
+			var nest = d3.nest()
+				.key(function(d){return d.STANDARD_DESCRIPTION;})
+				.rollup(function(v){
+					return v.length   		
+				})
+				.entries(filterVals)
+				.sort(function(a, b){ return d3.descending(a.values, b.values); }).slice(0,5);;
+				//console.log(nest);
+				infractionChart(nest);
+
+		
+			function infractionChart(data){
+				var exampleData = [
+					{
+						key: "totals",
+						values: []
+					}
+				];
+
+					// populate the empty object with your data
+				data.forEach(function (d){
+					d.values = +d.values
+					exampleData[0].values.push(d)
+				})       
+
+				nv.addGraph(function() {				
+					var chart = nv.models.discreteBarChart()
+						.x(function (d) { 
+						//console.log(d); 
+						return d.key })
+						.y(function (d) { return d.values })
+						.duration(250)
+						<!-- .margin({left: 100}) -->
+						<!-- .margin({right: 30}) -->
+						.color(['#f27100']);
+						
+					chart.yAxis.tickFormat(d3.format('.0f'));
+					chart.xAxis.tickFormat(function(d){
+						if (typeof this != 'undefined') {
+						 var el = d3.select(this);
+						 var p = d3.select(this.parentNode);
+						 p.append("foreignObject")
+							.attr('x', -100)
+							.attr("width", 200)
+							.attr("height", 200)
+							.append("xhtml:p")
+							.attr('style','word-wrap: break-word; text-align:center; font: normal 10px sans-serif;')
+							.html(d);    
+
+							el.remove();
+							return d;
+						}
+					});
+
+					d3.select('#chartTopInfractions svg')
+							.datum(exampleData)
+							.transition().duration(250)
+							.call(chart);
+
+					nv.utils.windowResize(chart.update);
+					return chart;
+				});
+			}		
+		}
+		
+		//Violations by Summons Type chart
+		function viosByTypeChart(){
+			var filterVals=gFilterVals.filter(function(d){
+			  return ( d["Type of Violation"] !=="DOB Violation" ) 
+			});
+			var nest = d3.nest()
+				.key(function(d){return d["Type of Violation"];})
+				.rollup(function(v){
+					return v.length   		
+				})
+				.entries(filterVals)
+				
+				//.sort(function(a, b){ return d3.descending(a.values, b.values); }).slice(0,5);;  
+				console.log(nest);
+				infractionChart(nest);
+		
+			function infractionChart(data){
+				var exampleData = [
+					{
+						key: "totals",
+						values: []
+					}
+				];
+
+				// populate the empty object with your data
+				data.forEach(function (d){
+					d.values = +d.values
+					exampleData[0].values.push(d)
+				})       
+
+				nv.addGraph(function() {				
+					var chart = nv.models.discreteBarChart()
+						.x(function (d) { return d.key })
+						.y(function (d) { return d.values })
+						.duration(250)
+						<!-- .margin({left: 100}) -->
+						<!-- .margin({right: 30}) -->
+						.color(['#2CA02C']);
+						
+					chart.yAxis.tickFormat(d3.format('.0f'));
+					chart.xAxis.tickFormat(function(d){
+						if (typeof this != 'undefined') {
+						 var el = d3.select(this);
+						 var p = d3.select(this.parentNode);
+						 p.append("foreignObject")
+							.attr('x', -100)
+							.attr("width", 200)
+							.attr("height", 200)
+							.append("xhtml:p")
+							.attr('style','word-wrap: break-word; text-align:center; font: normal 10px sans-serif;')
+							.html(d);    
+
+							el.remove();
+							return d;
+						}
+					});
+
+					d3.select('#chartViosByType svg')
+							.datum(exampleData)
+							.transition().duration(250)
+							.call(chart);
+
+					nv.utils.windowResize(chart.update);
+					return chart;
+				});
+			}		
+		}
+		
+		//Volume of Void w/o Replacement or Issued in Error chart
+		function summonsVoidChart(){
+			var filterVals=gFilterVals.filter(function(d){
+			  return ( ( d["Violation Status"] == "Summons Rejected") || ( d["Violation Status"] == "Summons Void w/o Replacement" ) ) 
+			});			
+			var nest = d3.nest()
+				.key(function(d){return d["Violation Status"];})
+				 .key(function(d){return d.Borough;})
+				.rollup(function(v){
+				return v.length   		
+				})
+				.entries(filterVals)
+				//console.log(nest);
+
+				//FORMAT NEST TO JSON (REQUIRED BY NVD3)
+				var a1=[],t=0;
+				for (vObj of nest ) {
+						obj={key: vObj.key }
+						a1.push(obj);
+						a2=[];
+						for (x=0;x<vObj.values.length;x++) {
+						   obj1={};
+						   obj1.label=vObj.values[x].key;
+						   obj1["value"]=vObj.values[x].values 
+						   a2.push(obj1);
+						}
+						a1[t].values=a2;
+						t++;
+				};
+				//console.log(a1);	
+		nv.addGraph(function() {
+			var chart = nv.models.multiBarHorizontalChart()
+			.x(function(d) { return d.label })
+			.y(function(d) { return d.value })		
+			.duration(250)
+			.margin({left: 100})
+			.margin({right: 30})
+			.xDomain(['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'])
+			.color(['#2CA02C','#48d848'])
+			.showControls(false)
+			.stacked(false);
+			chart.yAxis.tickFormat(d3.format(',.0f'));
+					
+		   
+			d3.select('#chartSummonsVoid svg')
+				.datum(a1)
+				.call(chart);
+			nv.utils.windowResize(chart.update);
+			
+			chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
+			chart.state.dispatch.on('change', function(state){
+				nv.log('state', JSON.stringify(state));
+			});	
+			return chart;
+				
+		})		
+		}
+		
+		//Mobile Summons Under Review
+		function underReviewChart(){
+			var filterVals=gFilterVals.filter(function(d){
+			  return ( d["Inspection Status"] == "Under Review" ) 
+			});			
+			var nest = d3.nest()
+				.key(function(d){return d["Inspection Status"];})
+				 .key(function(d){return d.Borough;})
+				.rollup(function(v){
+				return v.length   		
+				})
+				.entries(filterVals)
+				//console.log(nest);
+
+				//FORMAT NEST TO JSON (REQUIRED BY NVD3)
+				var a1=[],t=0;
+				for (vObj of nest ) {
+						obj={key: vObj.key }
+						a1.push(obj);
+						a2=[];
+						for (x=0;x<vObj.values.length;x++) {
+						   obj1={};
+						   obj1.label=vObj.values[x].key;
+						   obj1["value"]=vObj.values[x].values 
+						   a2.push(obj1);
+						}
+						a1[t].values=a2;
+						t++;
+				};
+				//console.log(a1);	
+		nv.addGraph(function() {
+			var chart = nv.models.multiBarHorizontalChart()
+			.x(function(d) { return d.label })
+			.y(function(d) { return d.value })		
+			.duration(250)
+			.margin({left: 100})
+			.margin({right: 30})
+			.xDomain(['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'])
+			.color(['#00B0C4'])
+			.showControls(false)
+			.showLegend(false)
+			.stacked(false);
+			chart.yAxis.tickFormat(d3.format(',.0f'));
+					
+		   
+			d3.select('#chartUnderReview svg')
+				.datum(a1)
+				.call(chart);
+			nv.utils.windowResize(chart.update);
+			
+			chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
+			chart.state.dispatch.on('change', function(state){
+				nv.log('state', JSON.stringify(state));
+			});	
+			return chart;
+				
+		})		
+		}
+		
+		//Mobile Summons Not Served
+		function notServedChart(){
+			var filterVals=gFilterVals.filter(function(d){
+			  return ( (d["Violation Status"] == "Summons Pending Approval") && (d["Served by Inspector"] == "") ) 
+			});			
+			var nest = d3.nest()
+				.key(function(d){return d["Violation Status"];})
+				 .key(function(d){return d.Borough;})
+				.rollup(function(v){
+				return v.length   		
+				})
+				.entries(filterVals)
+				//console.log(nest);
+
+				//FORMAT NEST TO JSON (REQUIRED BY NVD3)
+				var a1=[],t=0;
+				for (vObj of nest ) {
+						obj={key: vObj.key }
+						a1.push(obj);
+						a2=[];
+						for (x=0;x<vObj.values.length;x++) {
+						   obj1={};
+						   obj1.label=vObj.values[x].key;
+						   obj1["value"]=vObj.values[x].values 
+						   a2.push(obj1);
+						}
+						a1[t].values=a2;
+						t++;
+				};
+				//console.log(a1);	
+		nv.addGraph(function() {
+			var chart = nv.models.multiBarHorizontalChart()
+			.x(function(d) { return d.label })
+			.y(function(d) { return d.value })		
+			.duration(250)
+			.margin({left: 100})
+			.margin({right: 30})
+			.xDomain(['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'])
+			.color(['#00B0C4'])
+			.showControls(false)
+			.showLegend(false)
+			.stacked(false);
+			chart.yAxis.tickFormat(d3.format(',.0f'));
+					
+		   
+			d3.select('#chartNotServed svg')
+				.datum(a1)
+				.call(chart);
+			nv.utils.windowResize(chart.update);
+			
+			chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
+			chart.state.dispatch.on('change', function(state){
+				nv.log('state', JSON.stringify(state));
+			});	
+			return chart;
+				
+		})		
+		}
+	})	
+})
+</script>
+</body>
+</html>
