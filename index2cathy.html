@@ -333,7 +333,7 @@ $(document).ready(function(){
 	  document.body.scrollTop = 0;
 	  document.documentElement.scrollTop = 0;
 	}
-	var wod="misc";
+	var wod="miscellaneous";
 	function fBuild(n,q){
 		d=document.querySelector("#"+n);
 		q.forEach(
@@ -725,9 +725,8 @@ $(document).ready(function(){
 					chart.dispatch.on("renderEnd", function() {					
 						f=document.querySelectorAll("#chartTopInfractions p");
 						for (let f1 of f) {
-							if (f1.textContent.toLowerCase().includes(wod)){
-								f1.className="tWOTD";}}});
-					
+							if (f1.textContent.toLowerCase().indexOf(wod.toLowerCase())>=0 ){f1.className="tWOTD"}}}
+						);
 					d3.select('#chartTopInfractions svg')
 							.datum(exampleData)
 							.transition().duration(250)
