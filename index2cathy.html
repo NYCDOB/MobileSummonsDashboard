@@ -717,16 +717,12 @@ $(document).ready(function(){
 							.attr("height", 200)
 							.append("xhtml:p")
 							.attr('style','word-wrap: break-word; text-align:center; font: normal 10px sans-serif;')
+							.attr('class',function(){return ((d.toLowerCase().indexOf(wod.toLowerCase())>=0)?"tWOTD":"");})
 							.html(d);    
 							el.remove();
 							return d;
 						}
 					});										
-					chart.dispatch.on("renderEnd", function() {					
-						f=document.querySelectorAll("#chartTopInfractions p");
-						for (let f1 of f) {
-							if (f1.textContent.toLowerCase().indexOf(wod.toLowerCase())>=0 ){f1.className="tWOTD"}}}
-						);
 					d3.select('#chartTopInfractions svg')
 							.datum(exampleData)
 							.transition().duration(250)
