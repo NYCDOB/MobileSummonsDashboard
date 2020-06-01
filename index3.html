@@ -166,9 +166,7 @@ cursor:pointer;
 color:blue;
 font-size:20px;
 }
-.nvd3 .nv-axis.nv-y text {
-    font-size: 10px;
-}
+
 </style>
 
 <body class="application">
@@ -752,13 +750,15 @@ $(document).ready(function(){
 				};
 				//console.log(a1);	
 				nv.addGraph(function() {
-					var chart = nv.models.multiBarHorizontalChart()
+					var chart = nv.models.multiBarChart()
 					.x(function(d) { return d.label })
 					.y(function(d) { return d.value })		
 					.duration(250)
 					.margin({left: 100})
 					.margin({right: 30})
 					.showControls(false)
+					.reduceXTicks(false)
+					.staggerLabels(true)
 					.xDomain(['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'])
 					.color(['#c12122', '#f26969', '#ffabab'])
 					//#157000
