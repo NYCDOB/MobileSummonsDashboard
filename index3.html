@@ -141,6 +141,7 @@ svg {
   margin-bottom: 10px;
 }
 @media only screen and (max-width: 1200px) {
+	.nv-x foreignObject{display: none;}
 	#chart-wrapper-timeline{
 		margin-top: 350px;
 	}
@@ -893,22 +894,22 @@ $(document).ready(function(){
 						.color(['#2CA02C']);
 						
 					chart.yAxis.tickFormat(d3.format('.0f'));
-					chart.xAxis.tickFormat(function(d){
-						if (typeof this != 'undefined') {
-						 var el = d3.select(this);
-						 var p = d3.select(this.parentNode);
-						 p.append("foreignObject")
-							.attr('x', -100)
-							.attr("width", 200)
-							.attr("height", 200)
-							.append("xhtml:p")
-							.attr('style','word-wrap: break-word; text-align:center; font: normal 10px sans-serif;')
-							.html(d);    
+					<!-- chart.xAxis.tickFormat(function(d){ -->
+						<!-- if (typeof this != 'undefined') { -->
+						 <!-- var el = d3.select(this); -->
+						 <!-- var p = d3.select(this.parentNode); -->
+						 <!-- p.append("foreignObject") -->
+							<!-- .attr('x', -100) -->
+							<!-- .attr("width", 200) -->
+							<!-- .attr("height", 200) -->
+							<!-- .append("xhtml:p") -->
+							<!-- .attr('style','word-wrap: break-word; text-align:center; font: normal 10px sans-serif;') -->
+							<!-- .html(d);     -->
 
-							el.remove();
-							return d;
-						}
-					});
+							<!-- el.remove(); -->
+							<!-- return d; -->
+						<!-- } -->
+					<!-- }); -->
 
 					d3.select('#chartViosByType svg')
 							.datum(exampleData)
