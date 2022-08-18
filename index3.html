@@ -1115,7 +1115,7 @@ $(document).ready(function(){
 		//Summons to be Served
 		function toBeServedChart(doit=false,f=null){
 			var filterVals=gFilterVals.filter(function(d){
-			  return ( (d["Violation Status"] == "Summons Pending Approval") && (d["Process Served Date"] == "") && (d["Process Server Served"] == "") && (d["Date received from Process Server"] !== "") )
+			  return ( (d["Violation Status"] == "Summons Pending Approval") && (d["Process Served Date"] == "") && (d["Process Server Served"] == "") && (d["Date Received From Process Server"] !== "") )
 			});			
 			var nest = d3.nest()
 				.key(function(d){return d["Violation Status"];})
