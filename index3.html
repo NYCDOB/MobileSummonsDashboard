@@ -111,6 +111,12 @@ svg {
 	height: 350px;
 	width: 100%;
 }
+#chartProcessServed, svg{
+	margin: 0px;
+	padding: 0px;
+	height: 350px;
+	width: 100%;
+}
 #topBtn {
   display: inline-block;
   background-color: #317BBC;
@@ -330,6 +336,17 @@ font-size:20px;
         </div>
       </div>
 
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Mobile Summons To Be Served<i class="fa fa-download eDL pull-right" id="toBeServedChart" title="Download Data"></i>
+          </div>
+          <div class="chart-stage" id="chartProcessServed">
+            <svg></svg>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -402,7 +419,7 @@ $(document).ready(function(){
 								((toFormatDate)?d.creationDate <= toFormatDate:true )})
 						};
 		fFilterVals();
-		[timelineChart,summonsBoroughChart,statusTypeChart,summonsTypeChart,topInfractionsChart,viosByTypeChart,summonsVoidChart,underReviewChart,notServedChart].forEach(function(e){e()});
+		[timelineChart,summonsBoroughChart,statusTypeChart,summonsTypeChart,topInfractionsChart,viosByTypeChart,summonsVoidChart,underReviewChart,notServedChart,toBeServedChart].forEach(function(e){e()});
 		
 		//TIME FRAME
 		$('.datepicker').change(function() {
@@ -491,6 +508,7 @@ $(document).ready(function(){
 			summonsVoidChart();	
 			underReviewChart();
 			notServedChart();
+			toBeServedChart();
 		}
 		
 		var clearFilterClick = document.getElementById('clearFilterBtn');
@@ -511,6 +529,7 @@ $(document).ready(function(){
 			summonsVoidChart();	
 			underReviewChart();
 			notServedChart();
+			toBeServedChart();
 		}
 
 		extD=async(a,b,n,p,bool=1) => {
@@ -1092,6 +1111,67 @@ $(document).ready(function(){
 			return chart;					
 		})
 		}
+
+		//Summons to be Served
+		function toBeServedChart(doit=false,f=null){
+			var filterVals=gFilterVals.filter(function(d){
+			  return ( (d["Violation Status"] == "Summons Pending Approval") && (d["Process Served Date"] == "") && (d["Process Server Served"] == "") && (d["Date received from Process Server"] !== "") )
+			});			
+			var nest = d3.nest()
+				.key(function(d){return d["Violation Status"];})
+				 .key(function(d){return d.Borough;})
+				.rollup(function(v){
+				return v.length   		
+				})
+				.entries(filterVals)
+				//console.log(nest);
+
+				//FORMAT NEST TO JSON (REQUIRED BY NVD3)
+				var a1=[],t=0;
+				for (vObj of nest ) {
+						obj={key: vObj.key }
+						a1.push(obj);
+						a2=[];
+						for (x=0;x<vObj.values.length;x++) {
+						   obj1={};
+						   obj1.label=vObj.values[x].key;
+						   obj1["value"]=vObj.values[x].values 
+						   a2.push(obj1);
+						}
+						a1[t].values=a2;
+						t++;
+				};
+				//console.log(a1);	
+				if (doit){			
+					extD(filterVals,a1,f,"Violation Status",1);return;}
+		nv.addGraph(function() {
+			var chart = nv.models.multiBarHorizontalChart()
+			.x(function(d) { return d.label })
+			.y(function(d) { return d.value })		
+			.duration(250)
+			.margin({left: 100})
+			.margin({right: 30})
+			.xDomain(['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'])
+			.color(['#00B0C4'])
+			.showControls(false)
+			.showLegend(false)
+			.stacked(false);
+			chart.yAxis.tickFormat(d3.format(',.0f'));
+			d3.select('#chartProcessServed svg')
+				.datum(a1)
+				.call(chart);
+			nv.utils.windowResize(chart.update);			
+			chart.state.dispatch.on('change', function(state){
+					nv.log('state', JSON.stringify(state));
+			});
+			return chart;					
+		})
+		}
+
+
+
+
+
 	})	
 })
 </script>
